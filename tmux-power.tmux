@@ -23,6 +23,7 @@ right_arrow_icon=$(tmux_get '@tmux_power_right_arrow_icon' '')
 left_arrow_icon=$(tmux_get '@tmux_power_left_arrow_icon' '')
 upload_speed_icon=$(tmux_get '@tmux_power_upload_speed_icon' '')
 download_speed_icon=$(tmux_get '@tmux_power_download_speed_icon' '')
+prometheus_icon=$(tmux_get '@tmux_power_prometheus_icon' '')
 session_icon="$(tmux_get '@tmux_power_session_icon' '')"
 user_icon="$(tmux_get '@tmux_power_user_icon' '')"
 time_icon="$(tmux_get '@tmux_power_time_icon' '')"
@@ -30,6 +31,7 @@ date_icon="$(tmux_get '@tmux_power_date_icon' '')"
 show_upload_speed="$(tmux_get @tmux_power_show_upload_speed false)"
 show_download_speed="$(tmux_get @tmux_power_show_download_speed false)"
 show_web_reachable="$(tmux_get @tmux_power_show_web_reachable false)"
+show_prometheus="$(tmux_get @tmux_power_show_prometheus false)"
 prefix_highlight_pos=$(tmux_get @tmux_power_prefix_highlight_pos)
 time_format=$(tmux_get @tmux_power_time_format '%T')
 date_format=$(tmux_get @tmux_power_date_format '%F')
@@ -82,7 +84,7 @@ FG="$G10"
 BG="$G04"
 
 # Status options
-tmux_set status-interval 1
+tmux_set status-interval 60
 tmux_set status on
 
 # Basic status bar colors
@@ -106,10 +108,16 @@ tmux_set status-left-length 150
 user=$(whoami)
 LS="#[fg=$G04,bg=$TC,bold] $user_icon $user@#h #[fg=$TC,bg=$G06,nobold]$right_arrow_icon#[fg=$TC,bg=$G06] $session_icon #S "
 if "$show_upload_speed"; then
-    LS="$LS#[fg=$G06,bg=$G05]$right_arrow_icon#[fg=$TC,bg=$G05] $upload_speed_icon #{upload_speed} #[fg=$G05,bg=$BG]$right_arrow_icon"
+    LS="$LS#[fg=$G06,bg=$G05]$right_arrow_icon#[fg=$TC,bg=$G05] $upload_speed_icon #{upload_speed} #[fg=$G05,bg=$BG]"
 else
     LS="$LS#[fg=$G06,bg=$BG]$right_arrow_icon"
 fi
+if "$show_prometheus"; then
+    LS="$LS#[fg=$G05,bg=$G03]$right_arrow_icon#[fg=$TC,bg=$G03] $prometheus_icon #{prometheus_alerts} #[fg=$G03,bg=$BG]$right_arrow_icon"
+else
+    LS="$LS#[fg=$G06,bg=$BG]$right_arrow_icon"
+fi
+
 if [[ $prefix_highlight_pos == 'L' || $prefix_highlight_pos == 'LR' ]]; then
     LS="$LS#{prefix_highlight}"
 fi
@@ -142,7 +150,7 @@ tmux_set window-status-separator ""
 tmux_set status-justify centre
 
 # Current window status
-tmux_set window-status-current-statys "fg=$TC,bg=$BG"
+tmux_set window-status-current-status "fg=$TC,bg=$BG"
 
 # Pane border
 tmux_set pane-border-style "fg=$G07,bg=default"
